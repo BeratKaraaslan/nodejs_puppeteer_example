@@ -1,5 +1,9 @@
 const puppeteer = require("puppeteer");
+
+
 (async () => {
+
+    console.info('Test started.');
 
     const browser = await puppeteer.launch({
         headless: true, // Botu çalıştırırken chrome un açılıp açılmayacağının kontrolü.
@@ -23,54 +27,53 @@ const puppeteer = require("puppeteer");
         waitUntil: 'networkidle0'
     });
 
-
-
+    //scrraping işleminin yapılacağı fonksiyon
     async function scrappingCard() {
-        console.info('Test started.');
+        console.log('functions is started');
+
         try {
 
-            let airdropName = await page.evaluate(() => {
+            var airdropList = await page.evaluate(() => {
 
-                console.info("listenin içinde");
+                console.log('airdropList içinde');
+                ///airdropList i oluştur
+                var list = [];
 
-                let list = [];
-
+                ///airdrop ların listesini çek ve liste oluştur.
                 let allUrl = Array.from(document.querySelectorAll('div.air-content-front a[href^="https://airdrops"]'));
                 let airdropUrl = allUrl.map(c => c.getAttribute('href'));
+                if (airdropUrl.length != 0) {
 
-                console.log(airdropUrl);
-
-                if (allUrl != 0) {
-                    for (let i = 0; i > allUrl.length; i++) {
+                    ///Çekilen listeyi list'e ata.
+                    for (let index = 0; index < airdropUrl.length; index++) {
                         list.push({
-                            title: airdropUrl[i],
+                            url: airdropUrl[index],
                         });
                     }
                 }
-                return list
+                return list;
             });
 
-            console.log('functions is finished ' + airdropName.length);
-
-            for (let index = 0; index < airdropName.length; index++) {
-                console.log(airdropName[index].title);
+            ///Listeyi yazdıran döngü
+            for (let index = 0; index < airdropList.length; index++) {
+                console.log(airdropList[index].url);
             }
+            console.log('functions is finished ' + airdropList.length);
 
-        } catch (error){
-            console.log(error)
+
+        } catch (error) {
+            console.log(error);
+            await browser.close();
         }
     }
     try {
         await scrappingCard();
+        for await (const num of asyncGenerator()){
+            await description(num);
+        };
         await browser.close();
     } catch (error) {
         console.log(error);
         await browser.close();
     }
 })();
-
-function waitUntil(t) {
-    return new Promise((r) => {
-        setTimeout(r, t)
-    })
-}

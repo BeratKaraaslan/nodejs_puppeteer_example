@@ -221,7 +221,7 @@ const puppeteer = require("puppeteer");
             console.log('functions is finished ' + airdropList.length);
 
 
-            return airdropList;
+            return airdropList.length;
 
         } catch (error) {
             console.log(error);
@@ -229,109 +229,72 @@ const puppeteer = require("puppeteer");
         }
 
     }
-    async function description() {
+
+    async function description(ind) {
 
         console.log('functions is started');
 
-        try {
 
-            let airdropList = await page.evaluate(() => {
+        let airdropList = await page.evaluate(async () => {
 
-                console.log('airdropList içinde');
-                ///airdropList i oluştur
-                let list = [];
+            console.log('airdropList içinde');
+            ///list oluştur
+            let list = [];
 
-                ///airdrop ların listesini çek ve liste oluştur.
-                let allUrl = Array.from(document.querySelectorAll('div.air-content-front a[href^="https://airdrops"]'));
-                let airdropUrl = allUrl.map(c => c.getAttribute('href'));
-                if (airdropUrl.length != 0) {
+            ///airdrop URL leri çek ve liste oluştur.
+            let allUrl = Array.from(document.querySelectorAll('div.air-content-front a[href^="https://airdrops"]'));
+            let airdropUrl = allUrl.map(c => c.getAttribute('href'));
+            if (airdropUrl.length != 0) {
 
-                    ///Çekilen listeyi list'e ata.
-                    for (let index = 0; index < airdropUrl.length; index++) {
-                        list.push({
-                            url: airdropUrl[index],
+                ///Çekilen listeyi list'e ata.
+                for (let index = 0; index < airdropUrl.length; index++) {
+                    list.push({
+                        url: airdropUrl[index],
 
-                        });
-                    }
-                }
-                return list;
-            });
-
-            async function aciklama() {
-
-                descList = [];
-                for (let index = 0; index > airdropList.length; index++) {
-                    await page.goto(airdropList[index], {
-                        waitUntil: 'networkidle0'
-                    });
-                    var descriptions = await page.$eval(() => {
-                        let desc = Array.from('.download-whitepaper')
-                        let whitePaper = desc.map(c => c.getAttribute('href'))
-                        return whitePaper
-                    });
-                    descList.push({
-                        whitePaper: descriptions,
                     });
                 }
-                return descList;
-            };
-            await aciklama();
-            for (let i = 0; i > aciklama().length; i++) {
-                console.log("White Paper Link: " + aciklama()[i].whitePaper);
             }
-
-            ///Listeyi yazdıran döngü
-            // for (let index = 0; index < airdropList.length; index++) {
-            //     console.log(" Url: " + descriptions);
-            // }
-            console.log('functions is finished ' + airdropList.length);
-
-
-            return aciklama();
-
-        } catch (error) {
-            console.log(error);
-            await browser.close();
-        }
-
-
-        // try {
-
-        //     let urlAll = await page.evaluate(() => {
-        //         let allUrl = Array.from(document.querySelectorAll('div.air-content-front a[href^="https://airdrops"]'));
-        //         let airdropUrl = allUrl.map(c => c.getAttribute('href'));
-        //         return airdropUrl
-        //     });
-
-        //     descList = [];
-        //     for (let index = 0; index > urlAll.length; index++) {
-        //         await page.goto(urlAll[index], {
-        //             waitUntil: 'networkidle0'
-        //         });
-        //         var descriptions = await page.$eval(() => {
-        //             let desc = Array.from('.download-whitepaper')
-        //             let whitePaper = desc.map(c => c.getAttribute('href'))
-        //             return whitePaper
-        //         });
-        //         descList.push({
-        //             whitePaper: descriptions,
-        //         });
-        //     }
-        //     for (let i = 0; i > urlAll.length; i++) {
-        //         console.log("White Paper Link: " + descList[i].whitePaper);
-        //     }
-        //     return descList;
-        // } catch (error) {
-        //     console.log(error);
+            return list;
+        });
+        // for (let index = 0; index < airdropList.length; index++) {
+        //     console.log(airdropList[index].url);
         // }
+        console.log('functions is finished ' + airdropList.length);
+        let descList = [];
+
+        await page.goto(airdropList[ind].url, {
+            waitUntil: 'networkidle0'
+        });
+
+        
+        let wp = await page.$eval('.download-whitepaper', Element => Element.href);
+
+        if(wp!=null){
+
+            descList.push({
+                whitepaper: wp,
+            });
+            console.log(descList)
+        }
+        return descList;
+
+
     }
 
+    async function* asyncGenerator() {
+        let i = 0;
+        while (i < 3) {
+          yield i++;
+        }
+      }
 
 
     try {
         await showmore()
         await scrappingCard();
-        await description();
+        for await (const num of asyncGenerator()){
+            await description(num);
+        };
         await browser.close();
     } catch (error) {
         console.log(error);
