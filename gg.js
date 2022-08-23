@@ -16,6 +16,8 @@ const puppeteer = require("puppeteer");
         width: 1920,
         height: 1080
     });
+    
+    var descList = [];
 
     //scrraping işleminin yapılacağı fonksiyon
     async function description(ind) {
@@ -53,8 +55,7 @@ const puppeteer = require("puppeteer");
         //     console.log(airdropList[index].url);
         // }
         console.log('functions is finished ' + airdropList[ind].url);
-        var descList = [];
-
+ 
         // airdropList'teki url'e git
         await page.goto(airdropList[ind + 9].url, {
             waitUntil: 'networkidle0'
